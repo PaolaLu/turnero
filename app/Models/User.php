@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Role;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,7 +15,10 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Campos que se pueden asignar en masa.
+     *
+     * "role" NO está a propósito: así nadie puede darse otro rol mandando
+     * un campo extra en un formulario. El rol se asigna explícitamente.
      *
      * @var list<string>
      */
@@ -44,6 +48,30 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => Role::class,
         ];
+    }
+
+    /**
+     * ¿El usuario tiene alguno de estos roles?
+     */
+    public function hasRole(Role ...$roles): bool
+    {
+        return in_array($this->role, $roles, true);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === Role::Admin;
+    }
+
+    public function isProfesional(): bool
+    {
+        return $this->role === Role::Profesional;
+    }
+
+    public function isCliente(): bool
+    {
+        return $this->role === Role::Cliente;
     }
 }
